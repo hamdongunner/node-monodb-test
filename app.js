@@ -4,6 +4,7 @@ const app = express(); // dox
 const v1 = require("./routes/app/v1");
 const v2 = require("./routes/app/v2");
 const { notFound, dummy } = require("./middlewares");
+const port = process.env.PORT || 3000;
 
 // middleware
 app.use(express.json()); // allow to use req.body
@@ -17,6 +18,6 @@ app.use("/v2", v2);
 app.use(notFound);
 
 // DOX
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("Running on 3000");
 });
