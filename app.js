@@ -3,7 +3,7 @@ const express = require("express"); // dox
 const app = express(); // dox
 const v1 = require("./routes/app/v1");
 const v2 = require("./routes/app/v2");
-const { notFound, dummy } = require("./middlewares/all");
+const { notFound, dummy } = require("./middlewares");
 
 // middleware
 app.use(express.json()); // allow to use req.body

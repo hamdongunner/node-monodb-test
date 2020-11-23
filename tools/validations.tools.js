@@ -11,4 +11,31 @@ validationObjs.task = (must = true) => ({
   },
 });
 
+validationObjs.register = (must = true) => ({
+  name: {
+    presence: must,
+    type: "string",
+  },
+  email: {
+    presence: must,
+    type: "string",
+    email: true,
+  },
+  password: {
+    presence: must,
+    type: "string",
+  },
+});
+
+validationObjs.login = (must = true) => ({
+  email: {
+    presence: must,
+    type: "string",
+    email: true,
+  },
+  password: {
+    presence: must,
+    type: "string",
+  },
+});
 module.exports = validationObjs;
