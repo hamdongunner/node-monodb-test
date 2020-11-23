@@ -1,10 +1,6 @@
 const validate = require("validate.js");
 const validateObjs = require("../../tools/validations.tools");
-
-// FIXME: DUMMY
-let todoDB = [
-  { id: 1, title: "default", desc: "Create a new task", complete: false },
-];
+const { Task } = require("../../models");
 
 /**
  *
@@ -15,8 +11,8 @@ module.exports = class TaskController {
    * @param {*} req
    * @param {*} res
    */
-  static getAll = function (req, res) {
-    let data = todoDB;
+  static getAll = async function (req, res) {
+    let data = await Task.find();
     return res.json(data);
   };
 
@@ -25,9 +21,16 @@ module.exports = class TaskController {
    * @param {*} req
    * @param {*} res
    */
-  static getOne = function (req, res) {
+  static getOne = async function (req, res) {
     let id = req.params.id;
-    let data = todoDB[id - 1];
+    let data;
+    try {
+      data = await Task.findById(id);
+    } catch (error) {
+      res.statusCode = 400;
+      return res.json({ err: `Task #${id} not correct` });
+    }
+
     if (!data) {
       res.statusCode = 404;
       return res.json({ err: `Task #${id} not found` });
@@ -40,7 +43,7 @@ module.exports = class TaskController {
    * @param {*} req
    * @param {*} res
    */
-  static create = function (req, res) {
+  static create = async function (req, res) {
     // validation
     let body = req.body;
     let notValid = validate(body, validateObjs.task());
@@ -51,13 +54,12 @@ module.exports = class TaskController {
     let complete = false;
 
     // create a new task
-    let task = {
-      id: todoDB.length + 1,
+    let task = new Task({
       ...body,
       complete,
-    };
+    });
     // save the task in the DB
-    todoDB.push(task);
+    task.save();
     res.statusCode = 201;
     res.json({ task });
   };
@@ -67,7 +69,7 @@ module.exports = class TaskController {
    * @param {*} req
    * @param {*} res
    */
-  static editOne = function (req, res) {
+  static editOne = async function (req, res) {
     let id = req.params.id;
     let body = req.body;
     let notValid = validate(body, validateObjs.task(false));
@@ -75,14 +77,22 @@ module.exports = class TaskController {
       res.statusCode = 400;
       return res.json({ err: notValid });
     }
-    let task = todoDB[id - 1];
+
+    let task;
+    try {
+      task = await Task.findById(id);
+    } catch (error) {
+      res.statusCode = 400;
+      return res.json({ err: `Task #${id} not correct` });
+    }
     if (!task) {
       res.statusCode = 404;
       return res.json({ err: `Task #${id} is not found` });
     }
+
     Object.keys(body).map((key) => (task[key] = body[key]));
 
-    todoDB[id - 1] = task; // save
+    task.save(); // save
     res.statusCode = 200;
     return res.json(task);
   };
@@ -92,10 +102,18 @@ module.exports = class TaskController {
    * @param {*} req
    * @param {*} res
    */
-  static complete = function (req, res) {
+  static complete = async function (req, res) {
     // get the task from the database
     let id = req.params.id;
-    let task = todoDB[id - 1];
+
+    let task;
+    try {
+      task = await Task.findById(id);
+    } catch (error) {
+      res.statusCode = 400;
+      return res.json({ err: `Task #${id} not correct` });
+    }
+
     // chekc it the task exists -->> not return err
     if (!task) {
       res.statusCode = 404;
@@ -104,7 +122,8 @@ module.exports = class TaskController {
     // change the task complete to !complete
     task.complete = !task.complete;
     // save in the DB
-    todoDB[id - 1] = task;
+
+    task.save();
     // return the task (res)
     return res.json(task);
   };
