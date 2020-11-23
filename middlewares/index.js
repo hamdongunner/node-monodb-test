@@ -34,7 +34,8 @@ module.exports.userAuth = async (req, res, next) => {
     return res.json({ err: "User not found" });
   }
 
-  req.user = user;
+
+  req.user = user; // 
 
   return next();
 };

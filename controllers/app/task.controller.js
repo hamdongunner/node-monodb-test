@@ -12,7 +12,7 @@ module.exports = class TaskController {
    * @param {*} res
    */
   static getAll = async function (req, res) {
-    let data = await Task.find();
+    let data = await Task.find({ author: req.user._id });
     return res.json(data);
   };
 
@@ -25,7 +25,7 @@ module.exports = class TaskController {
     let id = req.params.id;
     let data;
     try {
-      data = await Task.findById(id);
+      data = await Task.findOne({ _id: id, author: req.user._id });
     } catch (error) {
       res.statusCode = 400;
       return res.json({ err: `Task #${id} not correct` });
@@ -57,6 +57,7 @@ module.exports = class TaskController {
     let task = new Task({
       ...body,
       complete,
+      author: req.user._id,
     });
     // save the task in the DB
     task.save();
@@ -65,7 +66,7 @@ module.exports = class TaskController {
   };
 
   /**
-   *
+   * TODO:
    * @param {*} req
    * @param {*} res
    */
@@ -98,7 +99,7 @@ module.exports = class TaskController {
   };
 
   /**
-   *
+   *  TODO:
    * @param {*} req
    * @param {*} res
    */
