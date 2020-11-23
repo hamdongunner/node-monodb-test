@@ -10,6 +10,7 @@ routre.get("/task/:id",userAuth, TaskController.getOne); // auth
 routre.post("/task", userAuth, TaskController.create); // auth
 routre.put("/task/:id", TaskController.editOne); // auth
 routre.put("/complete/:id", TaskController.complete); // auth
+routre.post("/upload", TaskController.upload);
 
 // User
 routre.post("/register", UserController.register);

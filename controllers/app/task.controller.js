@@ -1,6 +1,8 @@
 const validate = require("validate.js");
 const validateObjs = require("../../tools/validations.tools");
 const { Task } = require("../../models");
+const imgbbUploader = require("imgbb-uploader");
+const fs = require("fs");
 
 /**
  *
@@ -128,4 +130,26 @@ module.exports = class TaskController {
     // return the task (res)
     return res.json(task);
   };
+
+  /**
+   *
+   * @param req
+   * @param res
+   */
+  static async upload(req, res) {
+    if (!req.files) return res.json(`Image is missing`);
+    let key = ""; // FIXME: uer you APIN key
+    let image = req.files.image;
+    let fileName = "image";
+    let path = `./public/${fileName}.png`;
+    let result;
+    try {
+      await image.mv(path); // saving the image inside the public folder inside my project
+      result = await imgbbUploader(key, path); // upload the image to imgbb server and get the link 
+      fs.unlink(path, (error) => console.log(error)); // Delete the image from the my project
+    } catch (error) {
+      return res.json({ err: "error" });
+    }
+    return res.json({ result });
+  }
 };
