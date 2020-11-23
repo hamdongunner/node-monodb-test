@@ -2,6 +2,7 @@ const { User } = require("../../models");
 const validate = require("validate.js");
 const validateObjs = require("../../tools/validations.tools");
 var jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 /**
  *
@@ -28,11 +29,18 @@ module.exports = class UserController {
       return res.json({ err: "User already exists" });
     }
 
+    // hash the password
+    const salt = await bcrypt.genSalt(10);
+    const password = await bcrypt.hash(body.password, salt);
+
     // Create
-    user = new User({ ...body });
+    user = new User({
+      ...body,
+      password,
+    });
 
     // save
-    (await user).save();
+    user.save();
 
     // token
     var token = jwt.sign({ _id: user._id }, "shhhhh");
@@ -61,11 +69,13 @@ module.exports = class UserController {
       return res.json({ err: `User for email ${body.email} not found` });
     }
 
-    // compare the password FIXME:
-    if (body.password !== user.password) {
+    let validPassword = await bcrypt.compare(body.password, user.password);
+
+    if (!validPassword) {
       res.statusCode = 400;
       return res.json({ err: `Password is not correct` });
     }
+
 
     // create a token
     var token = jwt.sign({ _id: user._id }, "shhhhh");
